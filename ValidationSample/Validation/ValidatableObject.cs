@@ -41,7 +41,7 @@ namespace ValidationSample.Validation
         /// <returns></returns>
         public bool IsValid()
         {
-            return Errors.Any();
+            return !Errors.Any();
         }
 
         /// <summary>

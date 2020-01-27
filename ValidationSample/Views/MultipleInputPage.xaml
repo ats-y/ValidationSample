@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ContentPage
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:views="clr-namespace:ValidationSample.Views"
+    xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    x:Class="ValidationSample.Views.MultipleInputPage"
+    Title="複数項目入力の検証">
+
+    <ContentPage.Resources>
+        <DataTemplate x:Key="materialTemplate">
+            <views:MaterialView/>
+        </DataTemplate>
+    </ContentPage.Resources>
+
+    <ContentPage.Content>
+        <StackLayout
+            Padding="10">
+
+            <StackLayout
+                BindableLayout.ItemsSource="{Binding Materials}"
+                BindableLayout.ItemTemplate="{StaticResource materialTemplate}">
+            </StackLayout>
+
+            <Button
+                Text="登録"
+                Command="{Binding RegisterCommand}"/>
+
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

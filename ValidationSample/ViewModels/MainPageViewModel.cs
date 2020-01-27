@@ -6,8 +6,7 @@ namespace ValidationSample.ViewModels
 {
     public class MainPageViewModel
     {
-        public ReactiveCommand NavigateSingleCommand { get; } = new ReactiveCommand();
-        public ReactiveCommand NavigateWithCommand { get; } = new ReactiveCommand();
+        public ReactiveCommand NavigateCommand { get; } = new ReactiveCommand();
 
         private INavigationService _navigationService;
 
@@ -15,14 +14,10 @@ namespace ValidationSample.ViewModels
         {
             _navigationService = navigationService;
 
-            NavigateSingleCommand.Subscribe(_ =>
+            NavigateCommand.Subscribe(x =>
             {
-                _navigationService.NavigateAsync("SimpleValidationPage");
-            });
-
-            NavigateWithCommand.Subscribe(_ =>
-            {
-                _navigationService.NavigateAsync("WithCommandPage");
+                string pageName = x as string;
+                _navigationService.NavigateAsync(pageName);
             });
         }
     }

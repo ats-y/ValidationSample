@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ContentView
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:prism="http://prismlibrary.com"
+    xmlns:converter="clr-namespace:ValidationSample.Converters"
+    xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    x:Class="ValidationSample.Views.MaterialView">
+
+    <ContentView.Resources>
+        <ResourceDictionary>
+            <converter:TextChangedEventArgsConverter
+                x:Key="keyOfTextChangedEventArgsConverter" />
+        </ResourceDictionary>
+    </ContentView.Resources>
+
+    <ContentView.Content>
+        <StackLayout>
+
+            <!-- 材料名 -->
+            <Label
+                Text="{Binding Name}" />
+
+            <!-- 使用量入力エリア -->
+            <Entry
+                Text="{Binding ValidatableQuantity.Value}"
+                Placeholder="使用量">
+                <Entry.Behaviors>
+                    <!-- PrismのEventToCommandBehaviorでTextChangedイベントをコマンドにする -->
+                    <prism:EventToCommandBehavior
+                        EventName="TextChanged"
+                        Command="{Binding QuantityChangeCommand}"
+                        EventArgsConverter="{StaticResource keyOfTextChangedEventArgsConverter}" />
+                </Entry.Behaviors>
+            </Entry>
+
+            <!-- 使用量入力エラーメッセージ -->
+            <Label
+                Text="{Binding ValidationErrorMsg.Value}"
+                FontSize="Micro"
+                TextColor="Red" />
+
+        </StackLayout>
+    </ContentView.Content>
+</ContentView>

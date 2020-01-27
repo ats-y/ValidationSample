@@ -37,6 +37,7 @@ namespace ValidationSample
             containerRegistry.RegisterForNavigation<MainPage, MainPageViewModel>();
             containerRegistry.RegisterForNavigation<SimpleValidationPage, SimpleValidationPageViewModel>();
             containerRegistry.RegisterForNavigation<WithCommandPage, WithCommandPageViewModel>();
+            containerRegistry.RegisterForNavigation<MultipleInputPage, MultipleInputPageViewModel>();
         }
     }
 }

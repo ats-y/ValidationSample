@@ -9,10 +9,16 @@
     Title="Validation Sample">
     <StackLayout>
         <Button
-            Command="{Binding NavigateSingleCommand}"
+            Command="{Binding NavigateCommand}"
+            CommandParameter="SimpleValidationPage"
             Text="ビヘイビアを使った単純検証" />
         <Button
-            Command="{Binding NavigateWithCommand}"
+            Command="{Binding NavigateCommand}"
+            CommandParameter="WithCommandPage"
             Text="検証＋コマンド"/>
+        <Button
+            Command="{Binding NavigateCommand}"
+            CommandParameter="MultipleInputPage"
+            Text="複数項目入力の検証"/>
     </StackLayout>
 </ContentPage>
