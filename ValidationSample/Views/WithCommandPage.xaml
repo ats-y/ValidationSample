@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ContentPage
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:prism="http://prismlibrary.com"
+    xmlns:converter="clr-namespace:ValidationSample.Converters"
+    mc:Ignorable="d"
+    x:Class="ValidationSample.Views.WithCommandPage"
+    Title="検証＋コマンド">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converter:TextChangedEventArgsConverter
+                x:Key="keyOfTextChangedEventArgsConverter"/>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <ContentPage.Content>
+        <StackLayout
+            Padding="10">
+
+            <!-- 使用量入力エリア -->
+            <Entry
+                Text="{Binding ValidatableQuantity.Value}"
+                Placeholder="使用量" >
+                <Entry.Behaviors>
+                    <!-- PrismのEventToCommandBehaviorでTextChangedイベントをコマンドにする -->
+                    <prism:EventToCommandBehavior
+                        EventName="TextChanged"
+                        Command="{Binding QuantityTextChangeCommand}"
+                        EventArgsConverter="{StaticResource keyOfTextChangedEventArgsConverter}"/>
+                </Entry.Behaviors>
+            </Entry>
+
+            <!-- 使用量入力エラーメッセージ -->
+            <Label
+                Text="{Binding ValidationErrorMsg.Value}"
+                FontSize="Micro"
+                TextColor="Red"/>
+
+            <!-- 登録ボタン -->
+            <Button
+                Text="登録"
+                Command="{Binding RegisterCommand}"/>
+
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

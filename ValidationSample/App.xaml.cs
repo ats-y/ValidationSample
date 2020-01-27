@@ -35,6 +35,8 @@ namespace ValidationSample
 
             // View「MainPage」ViewModels「MainPageViewModel」を登録する。
             containerRegistry.RegisterForNavigation<MainPage, MainPageViewModel>();
+            containerRegistry.RegisterForNavigation<SimpleValidationPage, SimpleValidationPageViewModel>();
+            containerRegistry.RegisterForNavigation<WithCommandPage, WithCommandPageViewModel>();
         }
     }
 }

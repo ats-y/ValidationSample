@@ -8,10 +8,11 @@
     x:Class="ValidationSample.Views.MainPage"
     Title="Validation Sample">
     <StackLayout>
-        <!-- Place new controls here -->
-        <Label
-            Text="Welcome to Xamarin.Forms!"
-            HorizontalOptions="Center"
-            VerticalOptions="CenterAndExpand" />
+        <Button
+            Command="{Binding NavigateSingleCommand}"
+            Text="ビヘイビアを使った単純検証" />
+        <Button
+            Command="{Binding NavigateWithCommand}"
+            Text="検証＋コマンド"/>
     </StackLayout>
 </ContentPage>
