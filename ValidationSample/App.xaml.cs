@@ -1,31 +1,40 @@
 ﻿using System;
+using Prism;
+using Prism.Ioc;
+using Prism.Navigation;
+using ValidationSample.ViewModels;
+using ValidationSample.Views;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
 namespace ValidationSample
 {
-    public partial class App : Application
+    public partial class App
     {
         public App()
         {
             InitializeComponent();
-
-            MainPage = new MainPage();
         }
 
-        protected override void OnStart()
+        public App(IPlatformInitializer platformInitializer) : base(platformInitializer)
         {
-            // Handle when your app starts
+
         }
 
-        protected override void OnSleep()
+        protected override void OnInitialized()
         {
-            // Handle when your app sleeps
+            InitializeComponent();
+
+            // 起動直後にMainPageを表示する。
+            NavigationService.NavigateAsync("NavigationPage/MainPage");
         }
 
-        protected override void OnResume()
+        protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
-            // Handle when your app resumes
+            containerRegistry.RegisterForNavigation<NavigationPage>();
+
+            // View「MainPage」ViewModels「MainPageViewModel」を登録する。
+            containerRegistry.RegisterForNavigation<MainPage, MainPageViewModel>();
         }
     }
 }
