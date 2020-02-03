@@ -1,5 +1,4 @@
-﻿using System;
-namespace ValidationSample.Validation
+﻿namespace ValidationSample.Validation
 {
     /// <summary>
     /// 検証ルールインタフェイス

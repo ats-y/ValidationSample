@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Prism.Commands;
 using Prism.Mvvm;
 using Reactive.Bindings;
 using ValidationSample.Validation;
-using Xamarin.Forms;
 
 namespace ValidationSample.ViewModels
 {
@@ -14,27 +14,9 @@ namespace ValidationSample.ViewModels
     /// </summary>
     public class WithCommandPageViewModel : BindableBase
     {
-        /// <summary>
-        /// 検証機能付き使用量プロパティ
-        /// </summary>
-        private ValidatableObject<string> _validatableQuantity;
-        public ValidatableObject<string> ValidatableQuantity
-        {
-            get
-            {
-                return _validatableQuantity;
-            }
-
-            set
-            {
-                SetProperty(ref _validatableQuantity, value);
-            }
-        }
-
-        /// <summary>
-        /// 使用量変更コマンド
-        /// </summary>
-        public ReactiveCommand QuantityTextChangeCommand { get; } = new ReactiveCommand();
+        public ReactiveProperty<string> ValidatableQuantity { get; set; } = new ReactiveProperty<string>();
+        public ReactiveProperty<TimeSpan> StartTime { get; set; } = new ReactiveProperty<TimeSpan>();
+        public ReactiveProperty<TimeSpan> EndTime { get; set;  } = new ReactiveProperty<TimeSpan>();
 
         /// <summary>
         /// 使用量検証エラーメッセージ
@@ -44,52 +26,57 @@ namespace ValidationSample.ViewModels
         /// <summary>
         /// 登録コマンド
         /// </summary>
-        public Command RegisterCommand { get; }
+        public DelegateCommand RegisterCommand { get; }
+
+        /// <summary>
+        /// 使用量バリデータ
+        /// </summary>
+        private Validator<string> _quantityValidator;
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
         public WithCommandPageViewModel()
         {
-            _validatableQuantity = new ValidatableObject<string>();
-            _validatableQuantity.Rules = new List<IValidationRule<string>> {
-                new IsNullOrEmptyValidationRule<string>
+            // 登録コマンド。
+            // ObservesPropertyでCanRegister()を動かしたいプロパティを設定する。
+            RegisterCommand = new DelegateCommand(
+                () => OnRegisterCommand(),
+                () => CanRegister())
+                .ObservesProperty(() => StartTime.Value)
+                .ObservesProperty(() => EndTime.Value)
+                .ObservesProperty(() => ValidatableQuantity.Value);
+
+            // 使用量バリデータの作成。
+            _quantityValidator = new Validator<string>
+            {
+                Rules = new List<IValidationRule<string>>
                 {
-                    ErrorMessage = "使用量を入力してください",
-                },
-                new IsDigitValidationRule<string>
-                {
-                    IntegerDigits = 5,
-                    DecimalDigits = 4,
-                    ErrorMessage = "整数5桁、小数4桁の数値を入力してください",
+                    // 空チェック。
+                    new IsNullOrEmptyValidationRule<string>{
+                        ErrorMessage = "空でーす",
+                    },
+                    // 桁数チェック。
+                    new IsDigitValidationRule<string>
+                    {
+                        ErrorMessage ="整数5桁、小数4桁じゃないでーす",
+                        IntegerDigits = 5,
+                        DecimalDigits = 4,
+                    },
                 },
             };
 
-            // 使用量変更コマンドの購読。
-            QuantityTextChangeCommand.Subscribe( x =>
+            ValidatableQuantity.Value = "";
+
+            // 使用量変化の購読。
+            ValidatableQuantity.Subscribe(x =>
             {
-                Debug.WriteLine(x);
+                Debug.WriteLine($"ValidatableQuantity.Subscribe {ValidatableQuantity.Value}");
 
-                // 使用量を検証結果を表示する。
-                ValidationErrorMsg.Value = 
-                    _validatableQuantity.Errors.FirstOrDefault();
-
-                // 登録コマンドに登録可否の変更を通知する。
-                Debug.WriteLine("call ChangeCanExecute()");
-                RegisterCommand.ChangeCanExecute();
+                // 使用量を検証し、エラーメッセージを表示する。
+                IEnumerable<string> errors = _quantityValidator.Errors(x);
+                ValidationErrorMsg.Value = errors.FirstOrDefault();
             });
-
-            // 登録コマンド
-            RegisterCommand = new Command(
-                execute: _ => OnRegisterCommand(),
-                canExecute: x => CanRegister() );
-
-            // 使用量の初期値を設定する。
-            // コンストラクタでの値設定では使用量変更コマンドは動かないので
-            // 初期値の検証も行う。
-            ValidatableQuantity.Value = "2.";
-            ValidationErrorMsg.Value =
-                _validatableQuantity.Errors.FirstOrDefault();
 
             Debug.WriteLine("WithCommandPageViewModel.ctor() end.");
         }
@@ -102,8 +89,17 @@ namespace ValidationSample.ViewModels
         {
             Debug.WriteLine("CanRegister()");
 
-            // 使用量の検証結果が妥当であれば登録可能。
-            return _validatableQuantity.IsValid();
+            // 使用量の検証結果が妥当でなければ登録不可。
+            if (!_quantityValidator.IsValid(ValidatableQuantity.Value))
+            {
+                return false;
+            }
+
+            // 開始時間が終了時間よりあとであれば登録不可。
+            if (EndTime.Value < StartTime.Value) return false;
+
+            // 登録可。
+            return true;
         }
 
         private void OnRegisterCommand()

@@ -13,7 +13,7 @@
     <ContentPage.Resources>
         <ResourceDictionary>
             <converter:TextChangedEventArgsConverter
-                x:Key="keyOfTextChangedEventArgsConverter"/>
+                x:Key="keyOfTextChangedEventArgsConverter" />
         </ResourceDictionary>
     </ContentPage.Resources>
 
@@ -24,26 +24,49 @@
             <!-- 使用量入力エリア -->
             <Entry
                 Text="{Binding ValidatableQuantity.Value}"
-                Placeholder="使用量" >
-                <Entry.Behaviors>
-                    <!-- PrismのEventToCommandBehaviorでTextChangedイベントをコマンドにする -->
-                    <prism:EventToCommandBehavior
-                        EventName="TextChanged"
-                        Command="{Binding QuantityTextChangeCommand}"
-                        EventArgsConverter="{StaticResource keyOfTextChangedEventArgsConverter}"/>
-                </Entry.Behaviors>
+                Placeholder="使用量">
             </Entry>
 
             <!-- 使用量入力エラーメッセージ -->
             <Label
                 Text="{Binding ValidationErrorMsg.Value}"
                 FontSize="Micro"
-                TextColor="Red"/>
+                TextColor="Red" />
+
+            <!-- 開始・終了時間 -->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="0.4*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- 開始時間 -->
+                <Label
+                    Grid.Row="0"
+                    Grid.Column="0"
+                    VerticalOptions="CenterAndExpand"
+                    Text="開始時間" />
+                <TimePicker
+                    Time="{Binding StartTime.Value}"
+                    Grid.Row="0"
+                    Grid.Column="1" />
+
+                <!-- 終了時間 -->
+                <Label
+                    Grid.Row="1"
+                    Grid.Column="0"
+                    VerticalOptions="CenterAndExpand"
+                    Text="終了時間" />
+                <TimePicker
+                    Time="{Binding EndTime.Value}"
+                    Grid.Row="1"
+                    Grid.Column="1" />
+            </Grid>
 
             <!-- 登録ボタン -->
             <Button
                 Text="登録"
-                Command="{Binding RegisterCommand}"/>
+                Command="{Binding RegisterCommand}" />
 
         </StackLayout>
     </ContentPage.Content>
