@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using Prism.AppModel;
+using Prism.Commands;
 using Xamarin.Forms;
 
 namespace ValidationSample.ViewModels
@@ -18,14 +19,14 @@ namespace ValidationSample.ViewModels
         /// <summary>
         /// 登録コマンド
         /// </summary>
-        public Command RegisterCommand { get; }
+        public DelegateCommand RegisterCommand { get; }
 
         public MultipleInputPageViewModel()
         {
             // 登録コマンド
-            RegisterCommand = new Command(
-                execute: _ => OnRegisterCommand(),
-                canExecute: x => CanRegister());
+            RegisterCommand = new DelegateCommand(
+                executeMethod: () => OnRegisterCommand(),
+                canExecuteMethod: () => CanRegister());
 
             // 材料一覧をセット。
             Materials = new ObservableCollection<MaterialViewModel>
@@ -61,7 +62,7 @@ namespace ValidationSample.ViewModels
             Debug.WriteLine("OnMaterialPropertyChanged");
 
             // 登録コマンドの実行可否変化を通知する。
-            RegisterCommand.ChangeCanExecute();
+            RegisterCommand.RaiseCanExecuteChanged();
         }
 
         /// <summary>
