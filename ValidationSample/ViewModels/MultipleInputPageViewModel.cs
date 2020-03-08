@@ -121,21 +121,19 @@ namespace ValidationSample.ViewModels
                         item.OrderQuantity, $"依頼量({item.OrderQuantity})以下にしてね"));
 
                 // 材料ViewModelの状態変化を監視する。
-                mvm.PropertyChanged += OnMaterialPropertyChanged;
+                //mvm.PropertyChanged += OnMaterialPropertyChanged;
+                mvm.StatusChanged += OnMaterialStatusChanged;
                 Materials.Add(mvm);
             }
         }
 
         /// <summary>
-        /// 材料一覧プロパティ変更イベントハンドラ。
+        /// 材料状態変化イベントハンドラ。
         /// </summary>
         /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void OnMaterialPropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void OnMaterialStatusChanged(object sender)
         {
-            Debug.WriteLine("OnMaterialPropertyChanged");
-
-            // 登録コマンドの実行可否変化を通知する。
+            // 登録コマンドの実行可否を評価する。
             RegisterCommand.RaiseCanExecuteChanged();
         }
 

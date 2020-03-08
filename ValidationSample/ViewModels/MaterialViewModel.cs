@@ -36,6 +36,17 @@ namespace ValidationSample.ViewModels
         public ReactiveProperty<string> ValidationErrorMsg { get; } = new ReactiveProperty<string>();
 
         /// <summary>
+        /// 状態変更イベントハンドラ。
+        /// </summary>
+        /// <param name="sender"></param>
+        public delegate void StatusChangedEventHandler(object sender);
+
+        /// <summary>
+        /// 材料ViewModel状態変更イベント。
+        /// </summary>
+        public event StatusChangedEventHandler StatusChanged;
+
+        /// <summary>
         /// コンストラクタ
         /// </summary>
         public MaterialViewModel()
@@ -45,19 +56,22 @@ namespace ValidationSample.ViewModels
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        /// <param name="name">薬剤名</param>
+        /// <param name="name">材料名</param>
         /// <param name="quantity">使用量</param>
         public MaterialViewModel(string name, decimal quantity)
         {
+            // 属性を構築。
             Name = name;
             _validatableQuantity = new ValidatableObject<string>
             {
                 Value = quantity.ToString(),
             };
 
+            // 使用量が変更されたら妥当性を検証し、状態変更イベントを発火する。
             ValidatableQuantity.ValueChanged += (s) =>
             {
                 ValidateQuantity();
+                StatusChanged?.Invoke(this);
             };
 
             // 画面表示直後、初期値で妥当性検証結果を表示する。
@@ -65,17 +79,12 @@ namespace ValidationSample.ViewModels
         }
 
         /// <summary>
-        /// 
+        /// 使用量の妥当性を検証し、エラーがあれば表示する。
         /// </summary>
         private void ValidateQuantity()
         {
-            // 使用量を検証結果を表示する。
             ValidationErrorMsg.Value =
                 _validatableQuantity.Errors.FirstOrDefault();
-
-            // 登録コマンドに登録可否の変更を通知する。
-            Debug.WriteLine("call ChangeCanExecute()");
-            RaisePropertyChanged(nameof(ValidatableQuantity));
         }
     }
 }
