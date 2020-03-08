@@ -15,7 +15,7 @@ using Xamarin.Forms;
 
 namespace ValidationSample.ViewModels
 {
-    public class MultipleInputPageViewModel : BindableBase, IInitialize, IPageLifecycleAware
+    public class MultipleInputPageViewModel : BindableBase, IInitialize
     {
         /// <summary>
         /// 材料VM一覧
@@ -95,7 +95,7 @@ namespace ValidationSample.ViewModels
                 },
             };
 
-            // 使用量の基本妥当性ルールを作成する。
+            // 使用量の基本妥当性ルールを作成しておく。
             List<IValidationRule<string>> validations = new List<IValidationRule<string>>
             {
                 new IsNullOrEmptyValidationRule<string>
@@ -110,18 +110,21 @@ namespace ValidationSample.ViewModels
                 },
             };
 
+            // 材料ViewModelを生成する。
             foreach (Material item in inputMaterials)
             {
-                MaterialViewModel mvm = new MaterialViewModel(item.Name,
-                    item.OrderQuantity, validations);
+                // 基本妥当性ルールと材料ごとの依頼量超過妥当性ルールを材料ViewModelに設定する。
+                MaterialViewModel mvm = new MaterialViewModel(
+                                                item.Name, item.OrderQuantity );
+                mvm.ValidatableQuantity.Rules.AddRange(validations);
+                mvm.ValidatableQuantity.Rules.Add(
+                    new MaximumValidationRule<string>(
+                        item.OrderQuantity, $"依頼量({item.OrderQuantity})以下にしてね"));
 
+                // 材料ViewModelの状態変化を監視する。
                 mvm.PropertyChanged += OnMaterialPropertyChanged;
                 Materials.Add(mvm);
             }
-
-
-            // 材料一覧の各要素にPropertyChangedイベントハンドラを設定する。
-
         }
 
         /// <summary>
@@ -152,41 +155,20 @@ namespace ValidationSample.ViewModels
                 {
                     bool isValid = vm.ValidatableQuantity.IsValid();
                     Debug.WriteLine($"{vm.Name} = {isValid}");
-                    if (!isValid)
-                    {
-                        return false;
-                    }
+                    if (!isValid) return false;
                 }
             }
 
             // 終了日が開始日より前の場合は登録不可。
             if (ToDate < FromDate.Value) return false;
 
+            // 登録可。
             return true;
         }
 
         private void OnRegisterCommand()
         {
             Debug.WriteLine("OnRegisterCommand()");
-        }
-
-        public void OnAppearing()
-        {
-            Debug.WriteLine("IPageLifecycleAware.OnAppearing()");
-        }
-
-        public void OnDisappearing()
-        {
-            Debug.WriteLine("IPageLifecycleAware.OnDisappearing()");
-
-            // TODO:子画面に行くときもイベント解除しちゃうかも。
-            if (Materials != null)
-            {
-                foreach (MaterialViewModel vm in Materials)
-                {
-                    vm.PropertyChanged -= OnMaterialPropertyChanged;
-                }
-            }
         }
     }
 }

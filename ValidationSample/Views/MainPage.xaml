@@ -19,6 +19,6 @@
         <Button
             Command="{Binding NavigateCommand}"
             CommandParameter="MultipleInputPage"
-            Text="複数項目入力の検証"/>
+            Text="複数入力項目の検証"/>
     </StackLayout>
 </ContentPage>

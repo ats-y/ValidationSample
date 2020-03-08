@@ -47,14 +47,12 @@ namespace ValidationSample.ViewModels
         /// </summary>
         /// <param name="name">薬剤名</param>
         /// <param name="quantity">使用量</param>
-        /// <param name="validationRules">使用量妥当性ルール</param>
-        public MaterialViewModel(string name, decimal quantity, List<IValidationRule<string>> validationRules)
+        public MaterialViewModel(string name, decimal quantity)
         {
             Name = name;
             _validatableQuantity = new ValidatableObject<string>
             {
                 Value = quantity.ToString(),
-                Rules = validationRules,
             };
 
             ValidatableQuantity.ValueChanged += (s) =>
