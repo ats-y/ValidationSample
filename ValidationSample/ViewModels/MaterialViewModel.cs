@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using Prism.Mvvm;
@@ -9,8 +10,14 @@ using Xamarin.Forms;
 
 namespace ValidationSample.ViewModels
 {
+    /// <summary>
+    /// 材料ViewModel
+    /// </summary>
     public class MaterialViewModel : BindableBase
     {
+        /// <summary>
+        /// 材料名。
+        /// </summary>
         public string Name { get; set; }
 
         /// <summary>
@@ -19,21 +26,9 @@ namespace ValidationSample.ViewModels
         private ValidatableObject<string> _validatableQuantity;
         public ValidatableObject<string> ValidatableQuantity
         {
-            get
-            {
-                return _validatableQuantity;
-            }
-
-            set
-            {
-                SetProperty(ref _validatableQuantity, value);
-            }
+            get => _validatableQuantity;
+            set => SetProperty(ref _validatableQuantity, value);
         }
-
-        /// <summary>
-        /// 使用量変更コマンド
-        /// </summary>
-        public ReactiveCommand QuantityChangeCommand { get; } = new ReactiveCommand();
 
         /// <summary>
         /// 使用量検証エラーメッセージ
@@ -45,41 +40,48 @@ namespace ValidationSample.ViewModels
         /// </summary>
         public MaterialViewModel()
         {
-            _validatableQuantity = new ValidatableObject<string>();
-            _validatableQuantity.Rules = new List<IValidationRule<string>> {
-                new IsNullOrEmptyValidationRule<string>
+            _validatableQuantity = new ValidatableObject<string>
+            {
+                Rules = new List<IValidationRule<string>>
                 {
-                    ErrorMessage = "使用量を入力してください",
-                },
-                new IsDigitValidationRule<string>
-                {
-                    IntegerDigits = 5,
-                    DecimalDigits = 4,
-                    ErrorMessage = "整数5桁、小数4桁の数値を入力してください",
-                },
+                    new IsNullOrEmptyValidationRule<string>
+                    {
+                        ErrorMessage = "使用量を入力してください",
+                    },
+                    new IsDigitValidationRule<string>
+                    {
+                        IntegerDigits = 5,
+                        DecimalDigits = 4,
+                        ErrorMessage = "整数5桁、小数4桁の数値を入力してください",
+                    },
+                }
             };
 
-            // 使用量変更コマンドの購読。
-            QuantityChangeCommand.Subscribe(x =>
+            ValidatableQuantity.ValueChanged += (s) =>
             {
-                Debug.WriteLine(x);
-
-                // 使用量を検証結果を表示する。
-                ValidationErrorMsg.Value =
-                    _validatableQuantity.Errors.FirstOrDefault();
-
-                // 登録コマンドに登録可否の変更を通知する。
-                Debug.WriteLine("call ChangeCanExecute()");
-
-                RaisePropertyChanged(nameof(ValidatableQuantity));
-            });
+                ValidateQuantity();
+            };
 
             // 使用量の初期値を設定する。
             // コンストラクタでの値設定では使用量変更コマンドは動かないので
             // 初期値の検証も行う。
-            ValidatableQuantity.Value = "2.";
+            //ValidationErrorMsg.Value =
+            //    _validatableQuantity.Errors.FirstOrDefault();
+            ValidateQuantity();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private void ValidateQuantity()
+        {
+            // 使用量を検証結果を表示する。
             ValidationErrorMsg.Value =
                 _validatableQuantity.Errors.FirstOrDefault();
+
+            // 登録コマンドに登録可否の変更を通知する。
+            Debug.WriteLine("call ChangeCanExecute()");
+            RaisePropertyChanged(nameof(ValidatableQuantity));
         }
     }
 }

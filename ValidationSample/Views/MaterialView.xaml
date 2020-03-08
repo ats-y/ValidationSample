@@ -26,15 +26,7 @@
             <!-- 使用量入力エリア -->
             <Entry
                 Text="{Binding ValidatableQuantity.Value}"
-                Placeholder="使用量">
-                <Entry.Behaviors>
-                    <!-- PrismのEventToCommandBehaviorでTextChangedイベントをコマンドにする -->
-                    <prism:EventToCommandBehavior
-                        EventName="TextChanged"
-                        Command="{Binding QuantityChangeCommand}"
-                        EventArgsConverter="{StaticResource keyOfTextChangedEventArgsConverter}" />
-                </Entry.Behaviors>
-            </Entry>
+                Placeholder="使用量" />
 
             <!-- 使用量入力エラーメッセージ -->
             <Label
