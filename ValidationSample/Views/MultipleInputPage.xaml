@@ -10,8 +10,9 @@
     Title="複数項目入力の検証">
 
     <ContentPage.Resources>
-        <DataTemplate x:Key="materialTemplate">
-            <views:MaterialView/>
+        <DataTemplate
+            x:Key="materialTemplate">
+            <views:MaterialView />
         </DataTemplate>
     </ContentPage.Resources>
 
@@ -24,9 +25,43 @@
                 BindableLayout.ItemTemplate="{StaticResource materialTemplate}">
             </StackLayout>
 
+            <!-- 開始日・終了日入力エリア -->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition
+                        Width="Auto" />
+                    <ColumnDefinition
+                        Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <!-- 開始日 -->
+                <Label
+                    Grid.Row="0"
+                    Grid.Column="0"
+                    VerticalOptions="Center"
+                    Text="開始日" />
+                <DatePicker
+                    Grid.Row="0"
+                    Grid.Column="1"
+                    Date="{Binding FromDate.Value}"
+                    Format="yyyy/M/d" />
+
+                <!-- 終了日 -->
+                <Label
+                    Grid.Row="1"
+                    Grid.Column="0"
+                    VerticalOptions="Center"
+                    Text="終了日" />
+                <DatePicker
+                    Grid.Row="1"
+                    Grid.Column="1"
+                    Date="{Binding ToDate}"
+                    Format="yyyy/M/d" />
+            </Grid>
+
             <Button
                 Text="登録"
-                Command="{Binding RegisterCommand}"/>
+                Command="{Binding RegisterCommand}" />
 
         </StackLayout>
     </ContentPage.Content>

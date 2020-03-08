@@ -5,11 +5,13 @@ using System.ComponentModel;
 using System.Diagnostics;
 using Prism.AppModel;
 using Prism.Commands;
+using Prism.Mvvm;
+using Reactive.Bindings;
 using Xamarin.Forms;
 
 namespace ValidationSample.ViewModels
 {
-    public class MultipleInputPageViewModel : IPageLifecycleAware
+    public class MultipleInputPageViewModel : BindableBase, IPageLifecycleAware
     {
         /// <summary>
         /// 材料VM一覧
@@ -17,16 +19,49 @@ namespace ValidationSample.ViewModels
         public ObservableCollection<MaterialViewModel> Materials { get; set; }
 
         /// <summary>
+        /// 開始日
+        /// ReacrivePropertyで変更通知。
+        /// </summary>
+        public ReactiveProperty<DateTime> FromDate { get; } = new ReactiveProperty<DateTime>();
+
+        /// <summary>
+        /// 終了日
+        /// PrismのSetPropertyで変更通知。
+        /// </summary>
+        //public ReactiveProperty<DateTime> ToDate { get; } = new ReactiveProperty<DateTime>();
+        private DateTime _toDate;
+        public DateTime ToDate
+        {
+            get => _toDate;
+            set => SetProperty(ref _toDate, value);
+        }
+
+        /// <summary>
         /// 登録コマンド
         /// </summary>
         public DelegateCommand RegisterCommand { get; }
 
+        /// <summary>
+        /// コンストラクタ。
+        /// </summary>
         public MultipleInputPageViewModel()
         {
-            // 登録コマンド
+            // 開始日・終了日の初期値はシステム日付とする。
+            DateTime now = DateTime.Now;
+            FromDate.Value = now.Date;
+            _toDate = now.Date;
+
+            // 登録コマンド。
+            // 解説：
+            // canExecuteMethodにこのコマンドが実行可能かどうか判断する処理を指定する。
+            // ObservesPropertyに指定したプロパティが変化したらcanExecuteMethodが呼び出される。
+            // ObservesPropertyには、INotifyPropertyChangedによる変更通知機能が備わった
+            // プロパティを指定する（すなわち、PrismのSetPropertyやReactivePropertyでもOK）
             RegisterCommand = new DelegateCommand(
                 executeMethod: () => OnRegisterCommand(),
-                canExecuteMethod: () => CanRegister());
+                canExecuteMethod: () => CanRegister())
+                    .ObservesProperty(() => FromDate.Value)
+                    .ObservesProperty(() => ToDate);
 
             // 材料一覧をセット。
             Materials = new ObservableCollection<MaterialViewModel>
@@ -74,7 +109,7 @@ namespace ValidationSample.ViewModels
             Debug.WriteLine("CanRegister()");
 
             // 1つでも材料が無効であれば登録不可。
-            foreach(MaterialViewModel vm in Materials)
+            foreach (MaterialViewModel vm in Materials)
             {
                 bool isValid = vm.ValidatableQuantity.IsValid();
                 Debug.WriteLine($"{vm.Name} = {isValid}");
@@ -84,7 +119,9 @@ namespace ValidationSample.ViewModels
                 }
             }
 
-            // すべての材料が有効であれば登録可。
+            // 終了日が開始日より前の場合は登録不可。
+            if (ToDate < FromDate.Value) return false;
+
             return true;
         }
 
@@ -103,9 +140,9 @@ namespace ValidationSample.ViewModels
             Debug.WriteLine("IPageLifecycleAware.OnDisappearing()");
 
             // TODO:子画面に行くときもイベント解除しちゃうかも。
-            if(Materials != null)
+            if (Materials != null)
             {
-                foreach(MaterialViewModel vm in Materials)
+                foreach (MaterialViewModel vm in Materials)
                 {
                     vm.PropertyChanged -= OnMaterialPropertyChanged;
                 }
