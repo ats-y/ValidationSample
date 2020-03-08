@@ -24,15 +24,14 @@ namespace ValidationSample.ViewModels
 
         /// <summary>
         /// 開始日
-        /// ReacrivePropertyで変更通知。
+        /// ReacrivePropertyで変更通知するパターン。
         /// </summary>
         public ReactiveProperty<DateTime> FromDate { get; } = new ReactiveProperty<DateTime>();
 
         /// <summary>
         /// 終了日
-        /// PrismのSetPropertyで変更通知。
+        /// PrismのSetPropertyで変更通知するパターン。
         /// </summary>
-        //public ReactiveProperty<DateTime> ToDate { get; } = new ReactiveProperty<DateTime>();
         private DateTime _toDate;
         public DateTime ToDate
         {
