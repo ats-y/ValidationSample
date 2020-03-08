@@ -1,22 +1,26 @@
 ﻿
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using Prism.AppModel;
 using Prism.Commands;
 using Prism.Mvvm;
+using Prism.Navigation;
 using Reactive.Bindings;
+using ValidationSample.Models;
+using ValidationSample.Validation;
 using Xamarin.Forms;
 
 namespace ValidationSample.ViewModels
 {
-    public class MultipleInputPageViewModel : BindableBase, IPageLifecycleAware
+    public class MultipleInputPageViewModel : BindableBase, IInitialize, IPageLifecycleAware
     {
         /// <summary>
         /// 材料VM一覧
         /// </summary>
-        public ObservableCollection<MaterialViewModel> Materials { get; set; }
+        public ObservableCollection<MaterialViewModel> Materials { get; } = new ObservableCollection<MaterialViewModel>();
 
         /// <summary>
         /// 開始日
@@ -46,11 +50,6 @@ namespace ValidationSample.ViewModels
         /// </summary>
         public MultipleInputPageViewModel()
         {
-            // 開始日・終了日の初期値はシステム日付とする。
-            DateTime now = DateTime.Now;
-            FromDate.Value = now.Date;
-            _toDate = now.Date;
-
             // 登録コマンド。
             // 解説：
             // canExecuteMethodにこのコマンドが実行可能かどうか判断する処理を指定する。
@@ -62,29 +61,67 @@ namespace ValidationSample.ViewModels
                 canExecuteMethod: () => CanRegister())
                     .ObservesProperty(() => FromDate.Value)
                     .ObservesProperty(() => ToDate);
+        }
 
-            // 材料一覧をセット。
-            Materials = new ObservableCollection<MaterialViewModel>
+        /// <summary>
+        /// Prism画面初期化。
+        /// Prism Ver7.1以前のNavigatingTo()相当。
+        /// </summary>
+        /// <param name="parameters"></param>
+        public void Initialize(INavigationParameters parameters)
+        {
+            // 開始日・終了日の初期値はシステム日付とする。
+            DateTime now = DateTime.Now;
+            FromDate.Value = now.Date;
+            ToDate = now.Date;
+
+            // parametersで渡ってきた薬剤一覧、と仮定。
+            List<Material> inputMaterials = new List<Material>()
             {
-                new MaterialViewModel
+                new Material
                 {
                     Name = "材料1",
+                    OrderQuantity = 0,
                 },
-                new MaterialViewModel
+                new Material
                 {
                     Name = "材料2",
+                    OrderQuantity = 10.5M,
                 },
-                new MaterialViewModel
+                new Material
                 {
                     Name = "材料3",
+                    OrderQuantity = 12.123456M,
                 },
             };
 
-            // 材料一覧の各要素にPropertyChangedイベントハンドラを設定する。
-            foreach (MaterialViewModel vm in Materials)
+            // 使用量の基本妥当性ルールを作成する。
+            List<IValidationRule<string>> validations = new List<IValidationRule<string>>
             {
-                vm.PropertyChanged += OnMaterialPropertyChanged;
+                new IsNullOrEmptyValidationRule<string>
+                {
+                    ErrorMessage = "使用量を入力してください",
+                },
+                new IsDigitValidationRule<string>
+                {
+                    IntegerDigits = 5,
+                    DecimalDigits = 4,
+                    ErrorMessage = "整数5桁、小数4桁の数値を入力してください",
+                },
+            };
+
+            foreach (Material item in inputMaterials)
+            {
+                MaterialViewModel mvm = new MaterialViewModel(item.Name,
+                    item.OrderQuantity, validations);
+
+                mvm.PropertyChanged += OnMaterialPropertyChanged;
+                Materials.Add(mvm);
             }
+
+
+            // 材料一覧の各要素にPropertyChangedイベントハンドラを設定する。
+
         }
 
         /// <summary>
@@ -109,13 +146,16 @@ namespace ValidationSample.ViewModels
             Debug.WriteLine("CanRegister()");
 
             // 1つでも材料が無効であれば登録不可。
-            foreach (MaterialViewModel vm in Materials)
+            if (Materials != null)
             {
-                bool isValid = vm.ValidatableQuantity.IsValid();
-                Debug.WriteLine($"{vm.Name} = {isValid}");
-                if (!isValid)
+                foreach (MaterialViewModel vm in Materials)
                 {
-                    return false;
+                    bool isValid = vm.ValidatableQuantity.IsValid();
+                    Debug.WriteLine($"{vm.Name} = {isValid}");
+                    if (!isValid)
+                    {
+                        return false;
+                    }
                 }
             }
 

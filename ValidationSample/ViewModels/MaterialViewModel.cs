@@ -18,7 +18,7 @@ namespace ValidationSample.ViewModels
         /// <summary>
         /// 材料名。
         /// </summary>
-        public string Name { get; set; }
+        public string Name { get; private set; }
 
         /// <summary>
         /// 検証機能付き使用量プロパティ
@@ -40,21 +40,21 @@ namespace ValidationSample.ViewModels
         /// </summary>
         public MaterialViewModel()
         {
+        }
+
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        /// <param name="name">薬剤名</param>
+        /// <param name="quantity">使用量</param>
+        /// <param name="validationRules">使用量妥当性ルール</param>
+        public MaterialViewModel(string name, decimal quantity, List<IValidationRule<string>> validationRules)
+        {
+            Name = name;
             _validatableQuantity = new ValidatableObject<string>
             {
-                Rules = new List<IValidationRule<string>>
-                {
-                    new IsNullOrEmptyValidationRule<string>
-                    {
-                        ErrorMessage = "使用量を入力してください",
-                    },
-                    new IsDigitValidationRule<string>
-                    {
-                        IntegerDigits = 5,
-                        DecimalDigits = 4,
-                        ErrorMessage = "整数5桁、小数4桁の数値を入力してください",
-                    },
-                }
+                Value = quantity.ToString(),
+                Rules = validationRules,
             };
 
             ValidatableQuantity.ValueChanged += (s) =>
@@ -62,11 +62,7 @@ namespace ValidationSample.ViewModels
                 ValidateQuantity();
             };
 
-            // 使用量の初期値を設定する。
-            // コンストラクタでの値設定では使用量変更コマンドは動かないので
-            // 初期値の検証も行う。
-            //ValidationErrorMsg.Value =
-            //    _validatableQuantity.Errors.FirstOrDefault();
+            // 画面表示直後、初期値で妥当性検証結果を表示する。
             ValidateQuantity();
         }
 
