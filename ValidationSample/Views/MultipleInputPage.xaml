@@ -61,6 +61,7 @@
 
             <Button
                 Text="登録"
+                FontSize="Title"
                 Command="{Binding RegisterCommand}" />
 
         </StackLayout>

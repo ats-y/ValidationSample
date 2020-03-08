@@ -3,6 +3,16 @@
 ## 複数入力項目の検証
 
 サンプル画面：MultipleInputPage
+
+![動作GIF](Images/MultipleInputPage.gif)
+
+
+クラス構成
+![クラス構成](Images/MultipleInputPageClasses.png)
+
+<details>
+<summary>PluntUMLコード</summary>
+
 ```plantuml
 'left to right direction
 
@@ -57,6 +67,7 @@ note on link
     妥当性機能付き材料量。
 end note
 ```
+</details>
 
 ### できること
 #### 1.動的なViewの表示。
