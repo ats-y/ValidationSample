@@ -120,19 +120,21 @@ namespace ValidationSample.ViewModels
                     new MaximumValidationRule<string>(
                         item.OrderQuantity, $"依頼量({item.OrderQuantity})以下にしてね"));
 
-                // 材料ViewModelの状態変化を監視する。
-                //mvm.PropertyChanged += OnMaterialPropertyChanged;
-                mvm.StatusChanged += OnMaterialStatusChanged;
+                // 材料ViewModelのプロパティ変化を監視する。
+                mvm.PropertyChanged += OnMaterialPropertyChanged;
                 Materials.Add(mvm);
             }
         }
 
         /// <summary>
-        /// 材料状態変化イベントハンドラ。
+        /// 材料ViewModelのプロパティ変化イベントハンドラ。
         /// </summary>
         /// <param name="sender"></param>
-        private void OnMaterialStatusChanged(object sender)
+        /// <param name="e"></param>
+        private void OnMaterialPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
+            Debug.WriteLine($"MultipleInput OnMaterialPropertyChanged({e.PropertyName})");
+
             // 登録コマンドの実行可否を評価する。
             RegisterCommand.RaiseCanExecuteChanged();
         }

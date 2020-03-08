@@ -10,7 +10,7 @@ namespace ValidationSample.Validation
     /// T型のオブジェクトに検証機能をラッパーする。
     /// </summary>
     /// <typeparam name="T">対象の型</typeparam>
-    public class ValidatableObject<T>
+    public class ValidatableObject<T> : INotifyPropertyChanged
     {
         /// <summary>
         /// オブジェクト自身の値。
@@ -21,26 +21,23 @@ namespace ValidationSample.Validation
             get => _value;
             set
             {
+                // 値を保存し、プロパティ変更イベントを発火する。
                 _value = value;
-                ValueChanged?.Invoke(this);
+                PropertyChanged?.Invoke(this,
+                    new PropertyChangedEventArgs(nameof(Value)));
             }
         }
-            
+
         /// <summary>
         /// 検証ルールリスト。
         /// </summary>
         public List<IValidationRule<T>> Rules = new List<IValidationRule<T>>();
 
         /// <summary>
-        /// 値変更イベントハンドラ。
-        /// </summary>
-        /// <param name="sender"></param>
-        public delegate void ValueChangedEventHandler(object sender);
-
-        /// <summary>
         /// 値変更イベント。
+        /// （INotifyPropertyChangedの実装）
         /// </summary>
-        public event ValueChangedEventHandler ValueChanged;
+        public event PropertyChangedEventHandler PropertyChanged;
 
         /// <summary>
         /// コンストラクタ。

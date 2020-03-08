@@ -1,20 +1,13 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- 材料表示エリア -->
 <ContentView
     xmlns="http://xamarin.com/schemas/2014/forms"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:prism="http://prismlibrary.com"
-    xmlns:converter="clr-namespace:ValidationSample.Converters"
     xmlns:d="http://xamarin.com/schemas/2014/forms/design"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     x:Class="ValidationSample.Views.MaterialView">
-
-    <ContentView.Resources>
-        <ResourceDictionary>
-            <converter:TextChangedEventArgsConverter
-                x:Key="keyOfTextChangedEventArgsConverter" />
-        </ResourceDictionary>
-    </ContentView.Resources>
 
     <ContentView.Content>
         <StackLayout>
@@ -23,7 +16,11 @@
             <Label
                 Text="{Binding Name}" />
 
-            <!-- 使用量入力エリア -->
+            <!--
+            使用量入力エリア。
+            ※ValidatableQuantityはリアクティブプロパティではない。
+            　ValidatableObject型のValueプロパティとバインディングさせる。
+            -->
             <Entry
                 Text="{Binding ValidatableQuantity.Value}"
                 Placeholder="使用量" />

@@ -21,30 +21,16 @@ namespace ValidationSample.ViewModels
         public string Name { get; private set; }
 
         /// <summary>
-        /// 検証機能付き使用量プロパティ
+        /// 検証機能付き使用量プロパティ。
+        /// 入力Viewの値プロパティとバインディングする場合は、ValidatableObjectクラスが
+        /// 管理している値のプロパティである「Value」プロパティとバインディングすること。
         /// </summary>
-        private ValidatableObject<string> _validatableQuantity;
-        public ValidatableObject<string> ValidatableQuantity
-        {
-            get => _validatableQuantity;
-            set => SetProperty(ref _validatableQuantity, value);
-        }
+        public ValidatableObject<string> ValidatableQuantity { get; set; }
 
         /// <summary>
         /// 使用量検証エラーメッセージ
         /// </summary>
         public ReactiveProperty<string> ValidationErrorMsg { get; } = new ReactiveProperty<string>();
-
-        /// <summary>
-        /// 状態変更イベントハンドラ。
-        /// </summary>
-        /// <param name="sender"></param>
-        public delegate void StatusChangedEventHandler(object sender);
-
-        /// <summary>
-        /// 材料ViewModel状態変更イベント。
-        /// </summary>
-        public event StatusChangedEventHandler StatusChanged;
 
         /// <summary>
         /// コンストラクタ
@@ -62,16 +48,17 @@ namespace ValidationSample.ViewModels
         {
             // 属性を構築。
             Name = name;
-            _validatableQuantity = new ValidatableObject<string>
+            ValidatableQuantity = new ValidatableObject<string>
             {
                 Value = quantity.ToString(),
             };
 
-            // 使用量が変更されたら妥当性を検証し、状態変更イベントを発火する。
-            ValidatableQuantity.ValueChanged += (s) =>
+            // 使用量が変更されたら妥当性を検証し、PropertyChangeイベントを発火する。
+            ValidatableQuantity.PropertyChanged += (s, e) =>
             {
+                Debug.WriteLine($"MaterialVM OnPropertyChanged({e.PropertyName})");
                 ValidateQuantity();
-                StatusChanged?.Invoke(this);
+                RaisePropertyChanged(e.PropertyName);
             };
 
             // 画面表示直後、初期値で妥当性検証結果を表示する。
@@ -84,7 +71,7 @@ namespace ValidationSample.ViewModels
         private void ValidateQuantity()
         {
             ValidationErrorMsg.Value =
-                _validatableQuantity.Errors.FirstOrDefault();
+                ValidatableQuantity.Errors.FirstOrDefault();
         }
     }
 }
